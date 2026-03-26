@@ -49,7 +49,7 @@
     
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
-    --text-muted: #64748b;
+    --text-muted: #8ba1b7;
     
     /* Brand & Accent Colors */
     --primary: #3b82f6; /* Keep primary slightly visible */
@@ -288,6 +288,11 @@ a {
     height: 6px;
     border-radius: 3px;
     background-color: var(--border-color);
+}
+
+[data-theme="dark"] .progress {
+    background-color: #1e293b;
+    border: 1px solid var(--border-color);
 }
 
 .progress-bar {
