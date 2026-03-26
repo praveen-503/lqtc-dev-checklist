@@ -224,13 +224,22 @@ function switchSprint(name) {
 }
 
 function createNewSprint() {
-    const input = document.getElementById('newSprintName');
-    const name = input.value.trim();
-    if (!name) return alert('Sprint name required');
+    const startInput = document.getElementById('sprintStartDate');
+    const endInput = document.getElementById('sprintEndDate');
+    
+    if (!startInput || !endInput || !startInput.value || !endInput.value) {
+        return alert('Both start date and end date are required');
+    }
+    
+    // Format YYYY-MM-DD -> YYYY.MM.DD
+    const formattedStart = startInput.value.replace(/-/g, '.');
+    const formattedEnd = endInput.value.replace(/-/g, '.');
+    
+    const name = `${formattedStart} - ${formattedEnd}`;
     
     let sprints = getSprints();
     if (sprints.includes(name)) {
-        return alert('Sprint name already exists');
+        return alert('Sprint for these dates already exists');
     }
     
     sprints.push(name);
@@ -240,7 +249,8 @@ function createNewSprint() {
     // Auto empty init
     saveSprintData(name, { stories: [], bugs: [] });
     
-    input.value = '';
+    startInput.value = '';
+    endInput.value = '';
     const modalEl = document.getElementById('addSprintModal');
     const modalInstance = bootstrap.Modal.getInstance(modalEl);
     if(modalInstance) modalInstance.hide();
