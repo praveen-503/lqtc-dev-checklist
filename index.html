@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Enterprise Dashboard - LQTC RHRP</title>
+    <title>Dev Tracker</title>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
@@ -13,67 +14,84 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- Navbar / Header -->
     <nav class="navbar custom-navbar shadow-sm sticky-top">
         <div class="container-fluid px-2 px-md-4 d-flex flex-wrap gap-2 justify-content-between align-items-center">
-            
+
             <a class="navbar-brand d-none d-xl-flex align-items-center fw-bold me-2 me-md-4" href="#">
                 <i class="bi bi-grid-1x2-fill me-2 text-primary"></i>
-                LQTC Tracker
+                Dev Tracker
             </a>
 
             <!-- Sprints Architecture -->
             <div class="d-flex align-items-center flex-grow-1 flex-xl-grow-0 me-auto">
-                <select id="sprintSelect" class="form-select form-select-sm bg-light fw-medium shadow-sm me-2" style="width: auto; min-width: 140px; max-width: 200px;" onchange="switchSprint(this.value)">
+                <select id="sprintSelect" class="form-select form-select-sm bg-light fw-medium shadow-sm me-2"
+                    style="width: auto; min-width: 140px; max-width: 200px;" onchange="switchSprint(this.value)">
                     <!-- Populated by JS -->
                 </select>
-                <button class="btn btn-sm btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addSprintModal" title="Add New Sprint">
+                <button class="btn btn-sm btn-outline-primary shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#addSprintModal" title="Add New Sprint">
                     <i class="bi bi-plus-lg"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger shadow-sm ms-2" onclick="deleteCurrentSprint()" title="Delete Current Sprint">
+                <button class="btn btn-sm btn-outline-danger shadow-sm ms-2" onclick="deleteCurrentSprint()"
+                    title="Delete Current Sprint">
                     <i class="bi bi-trash"></i>
                 </button>
                 <div class="dropdown ms-2">
-                    <button class="btn btn-sm btn-light shadow-sm theme-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Data Tools">
+                    <button class="btn btn-sm btn-light shadow-sm theme-btn" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false" title="Data Tools">
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
                     <ul class="dropdown-menu shadow">
-                        <li><a class="dropdown-item fw-medium small" href="#" onclick="exportSprint()"><i class="bi bi-download me-2 text-primary"></i>Export Sprint JSON</a></li>
-                        <li><a class="dropdown-item fw-medium small" href="#" onclick="document.getElementById('importJsonFile').click()"><i class="bi bi-upload me-2 text-success"></i>Import Sprint JSON</a></li>
+                        <li><a class="dropdown-item fw-medium small" href="#" onclick="exportSprint()"><i
+                                    class="bi bi-download me-2 text-primary"></i>Export Sprint JSON</a></li>
+                        <li><a class="dropdown-item fw-medium small" href="#"
+                                onclick="document.getElementById('importJsonFile').click()"><i
+                                    class="bi bi-upload me-2 text-success"></i>Import Sprint JSON</a></li>
                     </ul>
-                    <input type="file" id="importJsonFile" accept=".json" style="display: none;" onchange="importSprint(event)">
+                    <input type="file" id="importJsonFile" accept=".json" style="display: none;"
+                        onchange="importSprint(event)">
                 </div>
             </div>
 
             <!-- Actions -->
             <div class="d-flex align-items-center gap-2">
                 <!-- Desktop Active/Fixed Bug Toggles -->
-                <button class="btn btn-sm btn-outline-danger shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#activeBugsOffcanvas">
+                <button class="btn btn-sm btn-outline-danger shadow-sm position-relative d-none d-md-inline-block"
+                    data-bs-toggle="offcanvas" data-bs-target="#activeBugsOffcanvas">
                     <i class="bi bi-bug-fill"></i> Active Bugs
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="navActiveBugsCount" style="font-size: 0.65em;">0</span>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        id="navActiveBugsCount" style="font-size: 0.65em;">0</span>
                 </button>
-                <button class="btn btn-sm btn-outline-success shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#fixedBugsOffcanvas">
+                <button class="btn btn-sm btn-outline-success shadow-sm position-relative d-none d-md-inline-block"
+                    data-bs-toggle="offcanvas" data-bs-target="#fixedBugsOffcanvas">
                     <i class="bi bi-check-circle-fill"></i> Fixed Bugs
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="navFixedBugsCount" style="font-size: 0.65em;">0</span>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success"
+                        id="navFixedBugsCount" style="font-size: 0.65em;">0</span>
                 </button>
 
                 <!-- Core Appends -->
-                <button class="btn btn-sm btn-primary d-flex align-items-center shadow-sm ms-1" data-bs-toggle="modal" data-bs-target="#userStoryModal">
+                <button class="btn btn-sm btn-primary d-flex align-items-center shadow-sm ms-1" data-bs-toggle="modal"
+                    data-bs-target="#userStoryModal">
                     <i class="bi bi-journal-plus me-1"></i> <span class="d-none d-sm-inline">Add Story</span>
                 </button>
-                <button class="btn btn-sm btn-danger d-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#bugModal" onclick="prepareBugModal('Yet to Fix')">
+                <button class="btn btn-sm btn-danger d-flex align-items-center shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#bugModal" onclick="prepareBugModal('Yet to Fix')">
                     <i class="bi bi-bug-fill me-1"></i> <span class="d-none d-sm-inline">Add Bug</span>
                 </button>
-                
+
                 <div class="vr mx-1 d-none d-sm-block bg-secondary"></div>
-                
-                <div class="d-flex align-items-center bg-light rounded shadow-sm ps-2 pe-1" style="height: 31px; cursor: pointer;" onclick="openDeveloperModal()" title="Developer Profile">
+
+                <div class="d-flex align-items-center bg-light rounded shadow-sm ps-2 pe-1"
+                    style="height: 31px; cursor: pointer;" onclick="openDeveloperModal()" title="Developer Profile">
                     <span id="navDevName" class="d-none d-md-inline small fw-bold text-secondary me-2"></span>
                     <i class="bi bi-person-fill text-primary"></i>
                 </div>
 
-                <button id="themeToggle" class="btn btn-sm btn-light rounded-circle shadow-sm theme-btn ms-1" style="width: 31px; height: 31px;" title="Toggle Dark Mode">
+                <button id="themeToggle" class="btn btn-sm btn-light rounded-circle shadow-sm theme-btn ms-1"
+                    style="width: 31px; height: 31px;" title="Toggle Dark Mode">
                     <i class="bi bi-moon-fill" id="themeIcon"></i>
                 </button>
             </div>
@@ -82,10 +100,12 @@
 
     <!-- Mobile Bug Toggles (Visible only on small screens) -->
     <div class="container-fluid px-4 mt-3 d-md-none d-flex justify-content-between">
-        <button class="btn btn-outline-danger flex-grow-1 me-2 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#activeBugsOffcanvas">
+        <button class="btn btn-outline-danger flex-grow-1 me-2 shadow-sm" data-bs-toggle="offcanvas"
+            data-bs-target="#activeBugsOffcanvas">
             <i class="bi bi-bug-fill"></i> Active
         </button>
-        <button class="btn btn-outline-success flex-grow-1 ms-2 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#fixedBugsOffcanvas">
+        <button class="btn btn-outline-success flex-grow-1 ms-2 shadow-sm" data-bs-toggle="offcanvas"
+            data-bs-target="#fixedBugsOffcanvas">
             <i class="bi bi-check-circle-fill"></i> Fixed
         </button>
     </div>
@@ -93,8 +113,10 @@
     <!-- Main Board -->
     <div class="container px-4 pb-4 mt-4 board-container section-full-height">
         <!-- Center/Main Column: User Stories -->
-        <div class="d-flex flex-column column-wrapper pb-3 rounded shadow-sm column-stories h-100 mx-auto" style="max-width: 900px;">
-            <div class="column-header d-flex justify-content-between align-items-center py-3 px-4 border-bottom border-primary theme-border">
+        <div class="d-flex flex-column column-wrapper pb-3 rounded shadow-sm column-stories h-100 mx-auto"
+            style="max-width: 900px;">
+            <div
+                class="column-header d-flex justify-content-between align-items-center py-3 px-4 border-bottom border-primary theme-border">
                 <h5 class="mb-0 fw-bold d-flex align-items-center text-primary">
                     <i class="bi bi-journals me-2"></i> User Stories
                     <span class="badge bg-primary ms-3 rounded-pill" id="storiesCount">0</span>
@@ -107,22 +129,27 @@
                     </select>
                 </div>
             </div>
-            
+
             <!-- Story Filters -->
             <div class="px-4 py-2 filter-bar-container theme-border border-bottom w-100">
                 <ul class="nav nav-pills nav-fill gap-2" id="storyTabs">
                     <li class="nav-item">
-                        <button class="nav-link active fw-medium py-1 filter-btn" data-filter="Active" onclick="setStoryFilter('Active')">
-                            Active <span class="badge bg-secondary text-white ms-1 rounded-pill" id="activeStoriesCount">0</span>
+                        <button class="nav-link active fw-medium py-1 filter-btn" data-filter="Active"
+                            onclick="setStoryFilter('Active')">
+                            Active <span class="badge bg-secondary text-white ms-1 rounded-pill"
+                                id="activeStoriesCount">0</span>
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link fw-medium py-1 filter-btn" data-filter="Completed" onclick="setStoryFilter('Completed')">
-                            Completed <span class="badge bg-secondary text-white ms-1 rounded-pill" id="completedStoriesCount">0</span>
+                        <button class="nav-link fw-medium py-1 filter-btn" data-filter="Completed"
+                            onclick="setStoryFilter('Completed')">
+                            Completed <span class="badge bg-secondary text-white ms-1 rounded-pill"
+                                id="completedStoriesCount">0</span>
                         </button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link fw-medium py-1 filter-btn" data-filter="All" onclick="setStoryFilter('All')">
+                        <button class="nav-link fw-medium py-1 filter-btn" data-filter="All"
+                            onclick="setStoryFilter('All')">
                             All
                         </button>
                     </li>
@@ -146,14 +173,17 @@
         <div class="offcanvas-body custom-scrollbar position-relative pb-5">
             <div id="fixedBugsList" class="card-list h-100"></div>
             <!-- Floating add bug button inside offcanvas -->
-            <button class="btn btn-success rounded-circle shadow-lg position-absolute bottom-0 end-0 m-4" style="width: 50px; height: 50px;" data-bs-toggle="modal" data-bs-target="#bugModal" onclick="prepareBugModal('Fixed')">
+            <button class="btn btn-success rounded-circle shadow-lg position-absolute bottom-0 end-0 m-4"
+                style="width: 50px; height: 50px;" data-bs-toggle="modal" data-bs-target="#bugModal"
+                onclick="prepareBugModal('Fixed')">
                 <i class="bi bi-plus-lg fs-4"></i>
             </button>
         </div>
     </div>
 
     <!-- Left-Side Offcanvas: Active Bugs -->
-    <div class="offcanvas offcanvas-start shadow" tabindex="-1" id="activeBugsOffcanvas" aria-labelledby="activeBugsLabel">
+    <div class="offcanvas offcanvas-start shadow" tabindex="-1" id="activeBugsOffcanvas"
+        aria-labelledby="activeBugsLabel">
         <div class="offcanvas-header border-bottom border-danger">
             <h5 class="offcanvas-title fw-bold d-flex align-items-center text-danger" id="activeBugsLabel">
                 <i class="bi bi-bug-fill me-2"></i> Active Bugs
@@ -164,7 +194,9 @@
         <div class="offcanvas-body custom-scrollbar position-relative pb-5">
             <div id="activeBugsList" class="card-list h-100"></div>
             <!-- Floating add bug button inside offcanvas -->
-            <button class="btn btn-danger rounded-circle shadow-lg position-absolute bottom-0 end-0 m-4" style="width: 50px; height: 50px;" data-bs-toggle="modal" data-bs-target="#bugModal" onclick="prepareBugModal('Yet to Fix')">
+            <button class="btn btn-danger rounded-circle shadow-lg position-absolute bottom-0 end-0 m-4"
+                style="width: 50px; height: 50px;" data-bs-toggle="modal" data-bs-target="#bugModal"
+                onclick="prepareBugModal('Yet to Fix')">
                 <i class="bi bi-plus-lg fs-4"></i>
             </button>
         </div>
@@ -183,22 +215,27 @@
                         <input type="hidden" id="storyId">
                         <div class="row mb-3">
                             <div class="col-12 col-md-5">
-                                <label class="form-label fw-medium text-muted small">Story Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bg-light" id="storyNumber" placeholder="e.g. US-12345" required>
+                                <label class="form-label fw-medium text-muted small">Story Number <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control bg-light" id="storyNumber"
+                                    placeholder="e.g. US-12345" required>
                             </div>
                             <div class="col-12 col-md-7">
                                 <label class="form-label fw-medium text-muted small">Story Description</label>
-                                <input type="text" class="form-control bg-light" id="storyTitle" placeholder="e.g. User should be able to Edit...">
+                                <input type="text" class="form-control bg-light" id="storyTitle"
+                                    placeholder="e.g. User should be able to Edit...">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-12 col-md-5">
                                 <label class="form-label fw-medium text-muted small">Release Baton</label>
-                                <input type="text" class="form-control bg-light" id="storyRbNumber" placeholder="e.g. 614944">
+                                <input type="text" class="form-control bg-light" id="storyRbNumber"
+                                    placeholder="e.g. 614944">
                             </div>
                             <div class="col-12 col-md-7">
                                 <label class="form-label fw-medium text-muted small">RB Description</label>
-                                <input type="text" class="form-control bg-light" id="storyRbDescription" placeholder="Brief RB description...">
+                                <input type="text" class="form-control bg-light" id="storyRbDescription"
+                                    placeholder="Brief RB description...">
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -219,7 +256,8 @@
                             </div>
                             <div class="col">
                                 <label class="form-label fw-medium text-muted small">Build Num</label>
-                                <input type="text" class="form-control bg-light" id="storyBuildNumber" placeholder="e.g. SCP #60">
+                                <input type="text" class="form-control bg-light" id="storyBuildNumber"
+                                    placeholder="e.g. SCP #60">
                             </div>
                         </div>
                         <div class="row mb-2">
@@ -236,7 +274,8 @@
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary fw-medium px-4" onclick="saveStory()">Save Story</button>
+                    <button type="button" class="btn btn-primary fw-medium px-4" onclick="saveStory()">Save
+                        Story</button>
                 </div>
             </div>
         </div>
@@ -254,12 +293,16 @@
                     <form id="bugForm">
                         <input type="hidden" id="bugId">
                         <div class="mb-3">
-                            <label class="form-label fw-medium text-muted small">Bug Number <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-lg bg-light" id="bugNumber" placeholder="e.g. BUGX123" required>
+                            <label class="form-label fw-medium text-muted small">Bug Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg bg-light" id="bugNumber"
+                                placeholder="e.g. BUGX123" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-medium text-muted small">Description <span class="text-danger">*</span></label>
-                            <textarea class="form-control bg-light" id="bugDescription" rows="3" placeholder="Brief description of the issue..." required></textarea>
+                            <label class="form-label fw-medium text-muted small">Description <span
+                                    class="text-danger">*</span></label>
+                            <textarea class="form-control bg-light" id="bugDescription" rows="3"
+                                placeholder="Brief description of the issue..." required></textarea>
                         </div>
                         <div class="row mb-3">
                             <div class="col">
@@ -281,7 +324,8 @@
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger fw-medium px-4" id="saveBugBtn" onclick="saveBug()">Save Bug</button>
+                    <button type="button" class="btn btn-danger fw-medium px-4" id="saveBugBtn" onclick="saveBug()">Save
+                        Bug</button>
                 </div>
             </div>
         </div>
@@ -297,15 +341,25 @@
                 </div>
                 <div class="modal-body">
                     <form id="addSprintForm">
-                        <div class="mb-2">
-                            <label class="form-label fw-medium text-muted small">Sprint Name</label>
-                            <input type="text" class="form-control bg-light" id="newSprintName" placeholder="e.g. 2026.03.23_2026.04.09" required>
+                        <div class="row mb-2">
+                            <div class="col">
+                                <label class="form-label fw-medium text-muted small">Start Date</label>
+                                <input type="date" class="form-control bg-light" id="sprintStartDate" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label fw-medium text-muted small">End Date</label>
+                                <input type="date" class="form-control bg-light" id="sprintEndDate" required>
+                            </div>
+                        </div>
+                        <div class="text-muted text-center mt-3" style="font-size:0.8rem;">
+                            Auto-formats to: <span class="fw-bold text-primary">YYYY.MM.DD - YYYY.MM.DD</span>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary fw-medium px-4" onclick="createNewSprint()">Create</button>
+                    <button type="button" class="btn btn-primary fw-medium px-4"
+                        onclick="createNewSprint()">Create</button>
                 </div>
             </div>
         </div>
@@ -316,17 +370,21 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content shadow">
                 <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-badge-fill me-2"></i>Developer Profile</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="devModalCloseBtn"></button>
+                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-badge-fill me-2"></i>Developer
+                        Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="devModalCloseBtn"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-2">
                         <label class="form-label fw-medium text-muted small">Your Name</label>
-                        <input type="text" class="form-control bg-light" id="developerNameInput" placeholder="e.g. John Doe" required>
+                        <input type="text" class="form-control bg-light" id="developerNameInput"
+                            placeholder="e.g. John Doe" required>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-primary fw-medium px-4 w-100" onclick="saveDeveloperName()">Save Profile</button>
+                    <button type="button" class="btn btn-primary fw-medium px-4 w-100"
+                        onclick="saveDeveloperName()">Save Profile</button>
                 </div>
             </div>
         </div>
@@ -337,7 +395,8 @@
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content shadow">
                 <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete</h5>
+                    <h5 class="modal-title fw-bold text-danger"><i
+                            class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-4" id="confirmDeleteMessage">
@@ -356,23 +415,103 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content shadow">
                 <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-envelope-check me-2"></i>QA Handoff Email Template</h5>
+                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-envelope-check me-2"></i>QA Handoff
+                        Email Template</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-3">
-                    <div class="bg-light p-3 rounded custom-scrollbar border" style="max-height: 400px; overflow-y: auto;">
+                    <div class="bg-light p-3 rounded custom-scrollbar border"
+                        style="max-height: 400px; overflow-y: auto;">
                         <!-- Using styled pre to render whitespace accurately but retaining styling -->
-                        <div id="emailTemplateContent" style="white-space: pre-wrap; word-break: break-word; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #333;"></div>
+                        <div id="emailTemplateContent"
+                            style="white-space: pre-wrap; word-break: break-word; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #333;">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0 justify-content-between">
-                    <span class="text-success small opacity-0 transition-opacity" id="copySuccessFeedback"><i class="bi bi-check2-circle me-1"></i>Copied to clipboard!</span>
+                    <span class="text-success small opacity-0 transition-opacity" id="copySuccessFeedback"><i
+                            class="bi bi-check2-circle me-1"></i>Copied to clipboard!</span>
                     <div>
                         <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary fw-medium px-4 ms-2" onclick="copyEmailText()"><i class="bi bi-copy me-2"></i>Copy to Clipboard</button>
+                        <button type="button" class="btn btn-primary fw-medium px-4 ms-2" onclick="copyEmailText()"><i
+                                class="bi bi-copy me-2"></i>Copy to Clipboard</button>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Project Documentation Modal -->
+    <div class="modal fade" id="projectDocModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-primary text-white border-bottom-0 rounded-top">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-journal-text me-2"></i>Project Overview & Features</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 custom-scrollbar">
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-primary mb-3">Goal: Modernizing Target Tracking</h6>
+                        <p class="text-secondary small">
+                            The <strong>LQTC Tracker</strong> is a specialized enterprise dashboard designed for 
+                            Agile teams to bridge the gap between development and SQA. It prioritizes 
+                            <strong>accountability</strong> through rigid checklists and <strong>efficiency</strong> 
+                            through automated handoff workflows.
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-primary mb-3">Key Features</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <div class="fw-bold small mb-1"><i class="bi bi-calendar-range text-primary me-2"></i>Sprint Scoping</div>
+                                    <div class="x-small text-muted">Isolates data by sprint dates (YYYY.MM.DD) to keep tracking cycles clean and organized.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <div class="fw-bold small mb-1"><i class="bi bi-check2-all text-success me-2"></i>22-Step Dev Checklist</div>
+                                    <div class="x-small text-muted">A mandatory process for User Stories ensuring Dev Int, Peer Testing, and RB updates are finished.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <div class="fw-bold small mb-1"><i class="bi bi-envelope-at text-info me-2"></i>SQA Handoff Automation</div>
+                                    <div class="x-small text-muted">Instantly packages story details, RB numbers, and notes into an email ready for clipboard copying.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded bg-light h-100">
+                                    <div class="fw-bold small mb-1"><i class="bi bi-database-up text-warning me-2"></i>JSON Data Portability</div>
+                                    <div class="x-small text-muted">Export and Import entire sprints to back up local data or share with team members.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <h6 class="fw-bold text-primary mb-3">Why these features?</h6>
+                        <ul class="text-secondary small ps-3">
+                            <li class="mb-2"><strong>Consistency:</strong> The "Completed" status only triggers when 100% of checklist items are checked, removing "false readiness."</li>
+                            <li class="mb-2"><strong>SaaS Aesthetics:</strong> Built with Glassmorphism and Dark Mode support to provide a premium enterprise experience without backend latency.</li>
+                            <li class="mb-2"><strong>Contextual Bug Loops:</strong> Active and Fixed bugs are isolated in slide-out offcanvas menus to maintain focus on the main User Story workflow.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-primary btn-sm px-4" data-bs-dismiss="modal">Understood</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Bottom Link for Documentation -->
+    <div class="container-fluid px-4 pb-4">
+        <div class="d-flex justify-content-center border-top theme-border pt-3">
+            <button class="btn btn-link btn-sm text-secondary text-decoration-none fw-medium opacity-75" data-bs-toggle="modal" data-bs-target="#projectDocModal">
+                <i class="bi bi-info-circle me-1"></i> View Project Documentation & Features (v1.0)
+            </button>
         </div>
     </div>
 
@@ -381,4 +520,5 @@
     <!-- Custom Application Logic -->
     <script src="script.js"></script>
 </body>
+
 </html>
