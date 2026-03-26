@@ -521,7 +521,7 @@ function renderBugList(containerId, bugArray, type) {
                         ${relatedStoryDisplay}
                         
                         <div class="progress-wrapper mb-2 mt-3">
-                            <div class="d-flex justify-content-between x-small text-muted mb-1" style="font-size:0.75rem; font-weight: 500;">
+                            <div class="d-flex justify-content-between x-small text-secondary mb-1" style="font-size:0.75rem; font-weight: 500;">
                                 <span>Progress</span>
                                 <span>${progress}%</span>
                             </div>
@@ -591,7 +591,7 @@ function renderStoryList(containerId, storyArray) {
                     </div>
                     
                     <div class="progress-wrapper pt-1 w-100 pe-5">
-                        <div class="d-flex justify-content-between text-muted mb-1" style="font-size:0.8rem; font-weight: 600;">
+                        <div class="d-flex justify-content-between text-secondary mb-1" style="font-size:0.8rem; font-weight: 600;">
                             <span>Process Completion</span>
                             <span>${progress}%</span>
                         </div>
@@ -603,9 +603,9 @@ function renderStoryList(containerId, storyArray) {
 
                 <div class="collapse" id="collapseStory-${story.id}">
                     <div class="pt-3 border-top mt-3">
-                        <div class="d-flex gap-4 text-muted x-small align-items-center mb-2" style="font-size:0.8rem;">
-                            <div><i class="bi bi-code-slash me-1"></i>Dev Target: ${formatDate(story.devDate)}</div>
-                            <div><i class="bi bi-rocket-takeoff me-1"></i>Rel Target: ${formatDate(story.releaseDate)}</div>
+                        <div class="d-flex gap-4 text-secondary x-small align-items-center mb-2" style="font-size:0.8rem; font-weight: 500;">
+                            <div><i class="bi bi-code-slash me-1 text-primary"></i>Dev Target: ${formatDate(story.devDate)}</div>
+                            <div><i class="bi bi-rocket-takeoff me-1 text-primary"></i>Rel Target: ${formatDate(story.releaseDate)}</div>
                         </div>
 
                         ${checklistHTML}
@@ -623,7 +623,7 @@ function renderStoryList(containerId, storyArray) {
                                         html += `
                                             <div class="comment-bubble d-flex flex-column p-2 rounded border">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <span class="x-small text-muted" style="font-size:0.75rem;"><i class="bi bi-clock me-1"></i>${cDate}</span>
+                                                    <span class="x-small text-secondary" style="font-size:0.75rem; font-weight: 500;"><i class="bi bi-clock me-1"></i>${cDate}</span>
                                                     <button class="btn btn-link text-danger p-0 border-0" style="font-size: 0.85rem" onclick="event.stopPropagation(); deleteStoryComment('${story.id}', ${cIdx})"><i class="bi bi-x-circle-fill"></i></button>
                                                 </div>
                                                 <span class="small" style="font-size:0.875rem; white-space: pre-wrap; word-break: break-word;">${c.text}</span>
