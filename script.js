@@ -8,9 +8,12 @@
    ========================================================================== */
 
 const STORAGE_KEYS = {
-    STORIES: 'userStories',
-    BUGS: 'bugTracker',
-    THEME: 'theme'
+    SPRINTS_LIST: 'sprints',
+    ACTIVE_SPRINT: 'activeSprint',
+    SPRINT_DATA_PREFIX: 'sprintData_',
+    THEME: 'theme',
+    LEGACY_STORIES: 'userStories',
+    LEGACY_BUGS: 'bugTracker'
 };
 
 const BUG_CHECKLIST = [
@@ -62,20 +65,95 @@ function showConfirmModal(message, callback) {
    Data Layer (LocalStorage)
    ========================================================================== */
 
+let activeSprintCache = null;
+
+function getSprints() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.SPRINTS_LIST)) || [];
+}
+
+function saveSprints(sprints) {
+    localStorage.setItem(STORAGE_KEYS.SPRINTS_LIST, JSON.stringify(sprints));
+}
+
+function getActiveSprint() {
+    if (activeSprintCache) return activeSprintCache;
+    activeSprintCache = localStorage.getItem(STORAGE_KEYS.ACTIVE_SPRINT);
+    return activeSprintCache;
+}
+
+function setActiveSprint(name) {
+    activeSprintCache = name;
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_SPRINT, name);
+}
+
+function getSprintData(sprintName) {
+    const defaultData = { stories: [], bugs: [] };
+    if (!sprintName) return defaultData;
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.SPRINT_DATA_PREFIX + sprintName));
+    return data || defaultData;
+}
+
+function saveSprintData(sprintName, data) {
+    if (!sprintName) return;
+    localStorage.setItem(STORAGE_KEYS.SPRINT_DATA_PREFIX + sprintName, JSON.stringify(data));
+}
+
 function getStories() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.STORIES)) || [];
+    return getSprintData(getActiveSprint()).stories;
 }
 
 function saveStories(stories) {
-    localStorage.setItem(STORAGE_KEYS.STORIES, JSON.stringify(stories));
+    const sprintName = getActiveSprint();
+    const data = getSprintData(sprintName);
+    data.stories = stories;
+    saveSprintData(sprintName, data);
 }
 
 function getBugs() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.BUGS)) || [];
+    return getSprintData(getActiveSprint()).bugs;
 }
 
 function saveBugs(bugs) {
-    localStorage.setItem(STORAGE_KEYS.BUGS, JSON.stringify(bugs));
+    const sprintName = getActiveSprint();
+    const data = getSprintData(sprintName);
+    data.bugs = bugs;
+    saveSprintData(sprintName, data);
+}
+
+function initSprints() {
+    let sprints = getSprints();
+    
+    // Legacy Migration
+    const legacyStories = JSON.parse(localStorage.getItem(STORAGE_KEYS.LEGACY_STORIES));
+    const legacyBugs = JSON.parse(localStorage.getItem(STORAGE_KEYS.LEGACY_BUGS));
+    
+    if (sprints.length === 0) {
+        if (legacyStories || legacyBugs) {
+            const defaultName = "Default Sprint";
+            sprints.push(defaultName);
+            saveSprints(sprints);
+            setActiveSprint(defaultName);
+            
+            const legacyData = { 
+                stories: legacyStories || [], 
+                bugs: legacyBugs || [] 
+            };
+            saveSprintData(defaultName, legacyData);
+            
+            // Cleanup legacy
+            localStorage.removeItem(STORAGE_KEYS.LEGACY_STORIES);
+            localStorage.removeItem(STORAGE_KEYS.LEGACY_BUGS);
+        } else {
+            const installName = "Sprint 1";
+            sprints.push(installName);
+            saveSprints(sprints);
+            setActiveSprint(installName);
+        }
+    } else {
+        if (!getActiveSprint() || !sprints.includes(getActiveSprint())) {
+            setActiveSprint(sprints[0]);
+        }
+    }
 }
 
 function seedMockData() {
@@ -92,6 +170,7 @@ function seedMockData() {
         stories.push({
             id: storyId,
             number: 'US-570749',
+            title: 'Sample User Story for initial setup',
             priority: 'High',
             status: 'Active',
             devDate: '2026-04-10',
@@ -113,20 +192,124 @@ function seedMockData() {
             checklist: [true, true, false, false]
         });
 
-        bugs.push({
-            id: 'id_' + Date.now() + '2',
-            number: 'BUGX188',
-            description: 'UI misalignment in the header dropdown menu on mobile Safari.',
-            status: 'Fixed',
-            relatedStory: null,
-            createdAt: Date.now() - 86400000,
-            fixedDate: '2026-03-25',
-            checklist: [true, true, true, false]
-        });
-
         saveStories(stories);
         saveBugs(bugs);
     }
+}
+
+/* ==========================================================================
+   Sprint Management & JSON I/O
+   ========================================================================== */
+
+function loadSprintDropdown() {
+    const select = document.getElementById('sprintSelect');
+    const sprints = getSprints();
+    const active = getActiveSprint();
+    
+    select.innerHTML = '';
+    sprints.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s;
+        option.textContent = s;
+        if (s === active) option.selected = true;
+        select.appendChild(option);
+    });
+}
+
+function switchSprint(name) {
+    if (!name) return;
+    setActiveSprint(name);
+    renderAll();
+}
+
+function createNewSprint() {
+    const input = document.getElementById('newSprintName');
+    const name = input.value.trim();
+    if (!name) return alert('Sprint name required');
+    
+    let sprints = getSprints();
+    if (sprints.includes(name)) {
+        return alert('Sprint name already exists');
+    }
+    
+    sprints.push(name);
+    saveSprints(sprints);
+    setActiveSprint(name);
+    
+    // Auto empty init
+    saveSprintData(name, { stories: [], bugs: [] });
+    
+    input.value = '';
+    const modalEl = document.getElementById('addSprintModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if(modalInstance) modalInstance.hide();
+    
+    loadSprintDropdown();
+    renderAll();
+}
+
+function exportSprint() {
+    const active = getActiveSprint();
+    if (!active) return;
+    const data = getSprintData(active);
+    
+    const exportObj = {
+        sprintName: active,
+        exportDate: new Date().toISOString(),
+        data: data
+    };
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    
+    // Preserve exact sprint name formatting for the download string mapping
+    downloadAnchorNode.setAttribute("download", `${active}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function importSprint(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const json = JSON.parse(e.target.result);
+            if (!json.sprintName || !json.data || !Array.isArray(json.data.stories) || !Array.isArray(json.data.bugs)) {
+                throw new Error("Invalid sprint export format.");
+            }
+            
+            let sprints = getSprints();
+            let targetName = json.sprintName;
+            
+            if (sprints.includes(targetName)) {
+                if(!confirm(`Sprint "${targetName}" already exists. Overwrite?`)) {
+                    document.getElementById('importJsonFile').value = '';
+                    return;
+                }
+            } else {
+                sprints.push(targetName);
+                saveSprints(sprints);
+            }
+            
+            saveSprintData(targetName, json.data);
+            setActiveSprint(targetName);
+            
+            loadSprintDropdown();
+            renderAll();
+            alert(`Successfully imported sprint: ${targetName}`);
+            
+        } catch (error) {
+            alert('Error parsing JSON file. Ensure it is a valid Sprint Export.');
+            console.error(error);
+        }
+        
+        document.getElementById('importJsonFile').value = '';
+    };
+    reader.readAsText(file);
 }
 
 /* ==========================================================================
@@ -756,6 +939,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Core Init Sequence
     initTheme();
+    initSprints();
+    loadSprintDropdown();
     seedMockData();
     renderAll();
 });
