@@ -1,0 +1,27 @@
+# Local History (VS Code Extension, etc.)
+.history/
+history/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Downloaded JSON sprint exports (optional, to prevent committing them if saved here)
+*.json
+
+# Dependencies (if ever added)
+node_modules/
+npm-debug.log
+yarn-error.log

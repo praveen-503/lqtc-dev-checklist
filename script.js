@@ -13,7 +13,8 @@ const STORAGE_KEYS = {
     SPRINT_DATA_PREFIX: 'sprintData_',
     THEME: 'theme',
     LEGACY_STORIES: 'userStories',
-    LEGACY_BUGS: 'bugTracker'
+    LEGACY_BUGS: 'bugTracker',
+    DEV_NAME: 'developerName'
 };
 
 const BUG_CHECKLIST = [
@@ -246,6 +247,29 @@ function createNewSprint() {
     
     loadSprintDropdown();
     renderAll();
+}
+
+function deleteCurrentSprint() {
+    const active = getActiveSprint();
+    if (!active) return;
+    
+    showConfirmModal(`Are you sure you want to permanently delete the sprint "${active}" and all of its associated User Stories and Bugs?`, () => {
+        let sprints = getSprints();
+        sprints = sprints.filter(s => s !== active);
+        saveSprints(sprints);
+        
+        localStorage.removeItem(STORAGE_KEYS.SPRINT_DATA_PREFIX + active);
+        
+        if (sprints.length > 0) {
+            setActiveSprint(sprints[0]);
+        } else {
+            localStorage.setItem(STORAGE_KEYS.ACTIVE_SPRINT, '');
+            initSprints();
+        }
+        
+        loadSprintDropdown();
+        renderAll();
+    });
 }
 
 function exportSprint() {
@@ -546,16 +570,11 @@ function renderStoryList(containerId, storyArray) {
                 </div>
                 
                 <div class="dashboard-card-header" data-bs-toggle="collapse" data-bs-target="#collapseStory-${story.id}" aria-expanded="false" aria-controls="collapseStory-${story.id}">
-                    <div class="d-flex justify-content-between align-items-start mb-2 pe-5">
-                        <h6 class="card-title mb-0">
-                            <a href="${adoLink}" target="_blank" onclick="event.stopPropagation()" class="card-link fs-6">${story.number}</a>
-                        </h6>
-                    </div>
                     <div class="d-flex justify-content-between align-items-center mb-2 pe-5">
-                        <div class="d-flex gap-2">
-                            <span class="badge ${getPriorityBadgeClass(story.priority)} card-badge">${story.priority}</span>
-                            <span class="badge ${story.status === 'Completed' ? 'bg-success' : 'bg-primary'} card-badge">${story.status}</span>
-                        </div>
+                        <h6 class="card-title mb-0 d-flex align-items-center flex-wrap gap-2">
+                            <a href="${adoLink}" target="_blank" onclick="event.stopPropagation()" class="card-link fs-6">${story.number}</a>
+                            <span class="badge ${getPriorityBadgeClass(story.priority)} card-badge ms-1">${story.priority}</span>
+                        </h6>
                         <div class="text-muted small">
                             <i class="bi bi-chevron-down ms-1 dropdown-indicator"></i>
                         </div>
@@ -894,6 +913,14 @@ function toggleStoryChecklist(storyId, itemIndex) {
     let target = stories.find(s => s.id === storyId);
     if (target) {
         target.checklist[itemIndex] = !target.checklist[itemIndex];
+        
+        // Auto-change status when all tasks are checked
+        if (target.checklist.every(item => item === true)) {
+            target.status = 'Completed';
+        } else if (target.status === 'Completed') {
+            target.status = 'Active'; // Revert back to active if unchecked
+        }
+        
         saveStories(stories);
         renderAll();
     }
@@ -922,6 +949,32 @@ function initTheme() {
         localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
         themeIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-fill text-dark';
     });
+    
+    // Developer Profile Display
+    const devName = localStorage.getItem(STORAGE_KEYS.DEV_NAME);
+    const navDevNameEl = document.getElementById('navDevName');
+    if(navDevNameEl && devName) navDevNameEl.textContent = devName;
+}
+
+function openDeveloperModal() {
+    const name = localStorage.getItem(STORAGE_KEYS.DEV_NAME) || '';
+    document.getElementById('developerNameInput').value = name;
+    new bootstrap.Modal(document.getElementById('developerModal')).show();
+}
+
+function saveDeveloperName() {
+    const name = document.getElementById('developerNameInput').value.trim();
+    if(name) {
+        localStorage.setItem(STORAGE_KEYS.DEV_NAME, name);
+        const navEl = document.getElementById('navDevName');
+        if(navEl) navEl.textContent = name;
+    } else {
+        localStorage.removeItem(STORAGE_KEYS.DEV_NAME);
+    }
+    
+    const modalEl = document.getElementById('developerModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if(modalInstance) modalInstance.hide();
 }
 
 // Bootstrap form reset upon modal dismiss
@@ -968,6 +1021,19 @@ function openEmailTemplate(storyId) {
         notesText = 'No specific notes.';
     }
 
+    let devName = localStorage.getItem(STORAGE_KEYS.DEV_NAME);
+    if (!devName) {
+        devName = prompt('Developer name not set. Please provide your name for the email signature:');
+        if (devName && devName.trim() !== '') {
+            devName = devName.trim();
+            localStorage.setItem(STORAGE_KEYS.DEV_NAME, devName);
+            const navEl = document.getElementById('navDevName');
+            if(navEl) navEl.textContent = devName;
+        } else {
+            devName = 'Developer'; // Fallback
+        }
+    }
+
     const emailTemplate = `Hi Team,
 
 Below user story is ready for SQA
@@ -983,7 +1049,7 @@ Note:
 ${notesText}
 
 Thanks and Regards
-Praveen Bommu`;
+${devName}`;
 
     document.getElementById('emailTemplateContent').textContent = emailTemplate;
     

@@ -16,19 +16,23 @@
 <body>
     <!-- Navbar / Header -->
     <nav class="navbar custom-navbar shadow-sm sticky-top">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand d-none d-lg-flex align-items-center fw-bold me-4" href="#">
+        <div class="container-fluid px-2 px-md-4 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            
+            <a class="navbar-brand d-none d-xl-flex align-items-center fw-bold me-2 me-md-4" href="#">
                 <i class="bi bi-grid-1x2-fill me-2 text-primary"></i>
-                LQTC Target Tracker
+                LQTC Tracker
             </a>
 
             <!-- Sprints Architecture -->
-            <div class="d-flex align-items-center me-auto">
-                <select id="sprintSelect" class="form-select form-select-sm bg-light fw-medium shadow-sm me-2" style="width: auto; min-width: 180px; max-width: 250px;" onchange="switchSprint(this.value)">
+            <div class="d-flex align-items-center flex-grow-1 flex-xl-grow-0 me-auto">
+                <select id="sprintSelect" class="form-select form-select-sm bg-light fw-medium shadow-sm me-2" style="width: auto; min-width: 140px; max-width: 200px;" onchange="switchSprint(this.value)">
                     <!-- Populated by JS -->
                 </select>
                 <button class="btn btn-sm btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addSprintModal" title="Add New Sprint">
                     <i class="bi bi-plus-lg"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger shadow-sm ms-2" onclick="deleteCurrentSprint()" title="Delete Current Sprint">
+                    <i class="bi bi-trash"></i>
                 </button>
                 <div class="dropdown ms-2">
                     <button class="btn btn-sm btn-light shadow-sm theme-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Data Tools">
@@ -41,22 +45,35 @@
                     <input type="file" id="importJsonFile" accept=".json" style="display: none;" onchange="importSprint(event)">
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-danger shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#activeBugsOffcanvas">
+
+            <!-- Actions -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Desktop Active/Fixed Bug Toggles -->
+                <button class="btn btn-sm btn-outline-danger shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#activeBugsOffcanvas">
                     <i class="bi bi-bug-fill"></i> Active Bugs
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="navActiveBugsCount">0</span>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="navActiveBugsCount" style="font-size: 0.65em;">0</span>
                 </button>
-                <button class="btn btn-outline-success shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#fixedBugsOffcanvas">
+                <button class="btn btn-sm btn-outline-success shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#fixedBugsOffcanvas">
                     <i class="bi bi-check-circle-fill"></i> Fixed Bugs
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="navFixedBugsCount">0</span>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="navFixedBugsCount" style="font-size: 0.65em;">0</span>
                 </button>
-                <button class="btn btn-primary d-flex align-items-center shadow-sm ms-2" data-bs-toggle="modal" data-bs-target="#userStoryModal">
-                    <i class="bi bi-journal-plus me-2"></i> Add Story
+
+                <!-- Core Appends -->
+                <button class="btn btn-sm btn-primary d-flex align-items-center shadow-sm ms-1" data-bs-toggle="modal" data-bs-target="#userStoryModal">
+                    <i class="bi bi-journal-plus me-1"></i> <span class="d-none d-sm-inline">Add Story</span>
                 </button>
-                <button class="btn btn-danger d-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#bugModal" onclick="prepareBugModal('Yet to Fix')">
-                    <i class="bi bi-plus-circle me-2"></i> Add Bug
+                <button class="btn btn-sm btn-danger d-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#bugModal" onclick="prepareBugModal('Yet to Fix')">
+                    <i class="bi bi-bug-fill me-1"></i> <span class="d-none d-sm-inline">Add Bug</span>
                 </button>
-                <button id="themeToggle" class="btn btn-light rounded-circle shadow-sm theme-btn" title="Toggle Dark Mode">
+                
+                <div class="vr mx-1 d-none d-sm-block bg-secondary"></div>
+                
+                <div class="d-flex align-items-center bg-light rounded shadow-sm ps-2 pe-1" style="height: 31px; cursor: pointer;" onclick="openDeveloperModal()" title="Developer Profile">
+                    <span id="navDevName" class="d-none d-md-inline small fw-bold text-secondary me-2"></span>
+                    <i class="bi bi-person-fill text-primary"></i>
+                </div>
+
+                <button id="themeToggle" class="btn btn-sm btn-light rounded-circle shadow-sm theme-btn ms-1" style="width: 31px; height: 31px;" title="Toggle Dark Mode">
                     <i class="bi bi-moon-fill" id="themeIcon"></i>
                 </button>
             </div>
@@ -289,6 +306,27 @@
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary fw-medium px-4" onclick="createNewSprint()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Modal -->
+    <div class="modal fade" id="developerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-person-badge-fill me-2"></i>Developer Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="devModalCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label fw-medium text-muted small">Your Name</label>
+                        <input type="text" class="form-control bg-light" id="developerNameInput" placeholder="e.g. John Doe" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-primary fw-medium px-4 w-100" onclick="saveDeveloperName()">Save Profile</button>
                 </div>
             </div>
         </div>
