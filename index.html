@@ -17,10 +17,30 @@
     <!-- Navbar / Header -->
     <nav class="navbar custom-navbar shadow-sm sticky-top">
         <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
+            <a class="navbar-brand d-none d-lg-flex align-items-center fw-bold me-4" href="#">
                 <i class="bi bi-grid-1x2-fill me-2 text-primary"></i>
                 LQTC Target Tracker
             </a>
+
+            <!-- Sprints Architecture -->
+            <div class="d-flex align-items-center me-auto">
+                <select id="sprintSelect" class="form-select form-select-sm bg-light fw-medium shadow-sm me-2" style="width: auto; min-width: 180px; max-width: 250px;" onchange="switchSprint(this.value)">
+                    <!-- Populated by JS -->
+                </select>
+                <button class="btn btn-sm btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addSprintModal" title="Add New Sprint">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+                <div class="dropdown ms-2">
+                    <button class="btn btn-sm btn-light shadow-sm theme-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Data Tools">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item fw-medium small" href="#" onclick="exportSprint()"><i class="bi bi-download me-2 text-primary"></i>Export Sprint JSON</a></li>
+                        <li><a class="dropdown-item fw-medium small" href="#" onclick="document.getElementById('importJsonFile').click()"><i class="bi bi-upload me-2 text-success"></i>Import Sprint JSON</a></li>
+                    </ul>
+                    <input type="file" id="importJsonFile" accept=".json" style="display: none;" onchange="importSprint(event)">
+                </div>
+            </div>
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-outline-danger shadow-sm position-relative d-none d-md-inline-block" data-bs-toggle="offcanvas" data-bs-target="#activeBugsOffcanvas">
                     <i class="bi bi-bug-fill"></i> Active Bugs
@@ -245,6 +265,30 @@
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-danger fw-medium px-4" id="saveBugBtn" onclick="saveBug()">Save Bug</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Sprint Modal -->
+    <div class="modal fade" id="addSprintModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold">Create Sprint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSprintForm">
+                        <div class="mb-2">
+                            <label class="form-label fw-medium text-muted small">Sprint Name</label>
+                            <input type="text" class="form-control bg-light" id="newSprintName" placeholder="e.g. 2026.03.23_2026.04.09" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light fw-medium" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary fw-medium px-4" onclick="createNewSprint()">Create</button>
                 </div>
             </div>
         </div>
